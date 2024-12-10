@@ -1,0 +1,33 @@
+name: Node.js CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Deploy to EC2
+      run: |
+        # Navigate to the project directory
+        cd /var/www/node-app
+
+        # Pull the latest code
+        git reset --hard
+        git clean -fd
+        git pull origin main
+
+        # Install dependencies
+        npm install
+
+        # Restart the application with PM2
+        pm2 stop node-app || true
+        pm2 delete node-app || true
+        pm2 start server.js --name node-app
+        pm2 save
