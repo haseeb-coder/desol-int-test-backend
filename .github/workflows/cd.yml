@@ -1,33 +1,30 @@
-name: Node.js CD
+name: CD Pipeline
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
 
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Deploy to EC2
-      run: |
-        # Navigate to the project directory
-        cd /var/www/node-app
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | base64 --decode > /tmp/ec2_key.pem
+          chmod 600 /tmp/ec2_key.pem  # Set proper permissions for the key
 
-        # Pull the latest code
-        git reset --hard
-        git clean -fd
-        git pull origin main
-
-        # Install dependencies
-        npm install
-
-        # Restart the application with PM2
-        pm2 stop node-app || true
-        pm2 delete node-app || true
-        pm2 start server.js --name node-app
-        pm2 save
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i /tmp/ec2_key.pem ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /path/to/your/project
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart node-app  # Assuming you are using PM2 to manage your app
+          EOF
