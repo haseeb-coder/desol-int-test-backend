@@ -1,5 +1,5 @@
-import Vehicle from '../schema';
-import { validateVehicleInfo } from '../validation';
+import Vehicle from '../schema/index.js';
+import { validateVehicleInfo } from '../validations/index.js';
 
 class VehicleController {
   static async submitVehicleInfo(req, res) {

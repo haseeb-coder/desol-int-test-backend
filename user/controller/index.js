@@ -1,7 +1,7 @@
-import { findOne } from '../schema';
-import { sign } from 'jsonwebtoken';
-import { compare } from 'bcrypt';
-import { validateLogin } from '../validation';
+import User from "../schema/index.js";
+import pkg from "jsonwebtoken";
+const { sign } = pkg; 
+import { validateLogin } from "../validations/index.js";
 
 class UserController {
   static generateToken(userId) {
@@ -12,20 +12,25 @@ class UserController {
 
   static async login(req, res) {
     try {
-      // Validate input
       await validateLogin(req.body);
 
       const { email, password } = req.body;
-      const user = await findOne({ email });
-      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
 
       const isValid = await compare(password, user.password);
-      if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
 
       const token = UserController.generateToken(user._id);
+
       res.json({ token, userId: user._id });
     } catch (err) {
-      res.status(400).json({ error: err.message || 'Server error' });
+      res.status(400).json({ error: err.message || "Server error" });
     }
   }
 }

@@ -1,7 +1,8 @@
-require("dotenv").config();
+import { config } from "dotenv";
 import { S3Client } from "@aws-sdk/client-s3";
 import multer from "multer";
 import multerS3 from "multer-s3";
+config();
 
 // S3 client configuration
 const s3 = new S3Client({
@@ -13,7 +14,7 @@ const s3 = new S3Client({
 });
 
 // Multer-S3 storage configuration
-const upload = multer({
+export const upload = multer({ // Use named export here
   storage: multerS3({
     s3,
     bucket: process.env.S3_BUCKET_NAME,
@@ -26,5 +27,3 @@ const upload = multer({
     },
   }),
 });
-
-export default upload;
