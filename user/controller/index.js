@@ -27,6 +27,7 @@ class UserController {
       }
 
       const token = UserController.generateToken(user._id);
+      console.log('here')
 
       res.json({ token, userId: user._id });
     } catch (err) {
