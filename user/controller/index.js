@@ -1,5 +1,6 @@
 import User from "../schema/index.js";
 import pkg from "jsonwebtoken";
+import bcrypt from  'bcrypt'
 const { sign } = pkg; 
 import { validateLogin } from "../validations/index.js";
 
@@ -21,7 +22,7 @@ class UserController {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const isValid = await compare(password, user.password);
+      const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
