@@ -6,8 +6,12 @@ import userRoutes from "./user/router/index.js";
 import vehicleRoutes from "./vehicle/router/index.js";
 
 const app = express();
-
-app.use(cors());
+const corsOptions = {
+  origin: 'https://desolint-test.netlify.app',  // Allow only Netlify frontend
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true,  // Allow cookies if needed
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Swagger configuration
