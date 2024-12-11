@@ -1,7 +1,7 @@
 import User from "../schema/index.js";
 import pkg from "jsonwebtoken";
-import bcrypt from  'bcrypt'
-const { sign } = pkg; 
+import bcrypt from "bcrypt";
+const { sign } = pkg;
 import { validateLogin } from "../validations/index.js";
 
 class UserController {
@@ -14,22 +14,16 @@ class UserController {
   static async login(req, res) {
     try {
       await validateLogin(req.body);
-
       const { email, password } = req.body;
-
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
-
       const token = UserController.generateToken(user._id);
-      console.log('here')
-
       res.json({ token, userId: user._id });
     } catch (err) {
       res.status(400).json({ error: err.message || "Server error" });
